@@ -1,6 +1,5 @@
 #set up three dictionary lists that contain words that can be set up as the word to guess.
 #easy = 5 letters, medium = 7 letters, hard =10/11 letters, expert= random difficult words
-#ALL OF THE FORMATTING NEEDED FOR THE APPLICATION TO RUN THROUGH TKINTER
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
@@ -56,26 +55,6 @@ def process_word(word):
       hiddenword.append("_")
     return word_letters, hiddenword
 
-#global variables
-word=''
-hidden=''
-lives=9  #initial variable to track the lives of the user
-difficulty=''
-#EASY WORD
-easy_word=pick_easy_word().upper()
-#MEDIUM WORD
-med_word=pick_med_word().upper()
-#HARD WORD
-hard_word=pick_hard_word().upper()
-#EXPERT WORD
-expert_word=pick_expert_word().upper()
-# datetime object containing current date and time to initiate the file
-newgameTime = datetime.now()
-# dd/mm/YY H:M:S
-dt_string_date = newgameTime.strftime("%Y/%m/%d")  
-dt_string_time = newgameTime.strftime("%H:%M:%S")        
-#print(dt_string_date)
-#print(dt_string_time)
 
 #button command that will reset the game state to full lives and no word as well as generating new words
 def reset_game_btn():
@@ -243,6 +222,13 @@ def guess_letter_btn():
         lg_string=','.join(lettersGuessed)
         lbl_let_guessed["text"]="Guesses: " + lg_string
 
+
+#function to allow enter to be pressed to submit letter guess
+def enter_pressed_guess_letter(event):
+    #run the function that is the same as the button pressed
+    guess_letter_btn()
+
+    
 #command for guessing the full word button when pressed
 def guess_word_btn():
     global guess_word, lives
@@ -313,8 +299,39 @@ def guess_word_btn():
         lbl_game_state["image"]=_0lives
     
     lbl_word["text"]=' '.join(hidden)
+
+#function to allow enter to be pressed to word guess
+def enter_pressed_guess_word(event):   
+    #run the function that is the same as the button pressed
+    guess_word_btn()
+
+
+
     
-#ALL OF THE BELOS IS FORMATING FOR THE GUI AND ITS DISPLAYS
+#-------------GLOBAL VARIABLES TO INITIATE APP ------------
+word=''
+hidden=''
+lives=9  #initial variable to track the lives of the user
+difficulty=''
+#EASY WORD
+easy_word=pick_easy_word().upper()
+#MEDIUM WORD
+med_word=pick_med_word().upper()
+#HARD WORD
+hard_word=pick_hard_word().upper()
+#EXPERT WORD
+expert_word=pick_expert_word().upper()
+# datetime object containing current date and time to initiate the file
+newgameTime = datetime.now()
+# dd/mm/YY H:M:S
+dt_string_date = newgameTime.strftime("%Y/%m/%d")  
+dt_string_time = newgameTime.strftime("%H:%M:%S")        
+#print(dt_string_date)
+#print(dt_string_time)  
+
+
+
+# ------------------------------------ ALL APP FORMATTING -------------------------------------------
 # Create instance
 window = tk.Tk()
 # Add a title
@@ -323,7 +340,7 @@ btn_colors=["#F8F8FF", "#4169E1"]       #text and background for buttons
 window.title("HANGMAN - APP (jlf)")
 #window.geometry('400x600')
 # Disable resizing the GUI
-window.resizable(0,1)  #(x,y)
+window.resizable(0,0)  #(x,y)
 
 #load all of the images needed for the hangman drawings via tk.Photoimage
 titlescreen = tk.PhotoImage(file='titlescreen.png')
@@ -419,7 +436,7 @@ lbl_line10=tk.Label(master=frm_picture, text=' ', font=frm_pic_front, fg=frm_pic
 lbl_line10.grid(row=4, column=0)
 
 #botton frame that has the buttons and lives shown
-frm_buttons=tk.Frame(master=window, background=frm_pic_colors[1])
+frm_buttons=tk.Frame(master=window, background=frm_pic_colors[1], highlightthickness=0)
 frm_buttons.grid(row=5, column=0, sticky='ew')
 frm_buttons.grid_rowconfigure([0,1], weight=1)
 frm_buttons.grid_columnconfigure([0,1,2], weight=1)
@@ -429,7 +446,8 @@ ent_letter_guess=tk.Entry(master=frm_buttons)
 btb_letter_confirm=tk.Button(master=frm_buttons, text="Guess Letter!", font=("Miriam", 14, "bold"),fg=btn_colors[0], bg=btn_colors[1],
                    relief=tk.RIDGE, borderwidth=3,command=guess_letter_btn)       #guess letter button
 ent_letter_guess.grid(row=0, column=0, pady=10)
-btb_letter_confirm.grid(row=1, column=0, pady=10)
+btb_letter_confirm.grid(row=1, column=0, padx=3, pady=10)
+ent_letter_guess.bind("<Return>", enter_pressed_guess_letter)        #bind ENTER to the entry that will run the same as button pressed
 
 #bottom middle part of screen to keep track of lives remaining
 lbl_lives=tk.Label(master=frm_buttons, text="Lives Remaining:", font=("Miriam", 15), bg=frm_pic_colors[1])
@@ -442,7 +460,8 @@ ent_word_guess=tk.Entry(master=frm_buttons)
 btb_word_confirm=tk.Button(master=frm_buttons, text="Guess Word!",font=("Miriam", 14, "bold"),fg=btn_colors[0], bg=btn_colors[1],
                    relief=tk.RIDGE, borderwidth=3, command=guess_word_btn)               #guess word button
 ent_word_guess.grid(row=0, column=2, pady=10)
-btb_word_confirm.grid(row=1, column=2, pady=10)
+btb_word_confirm.grid(row=1, column=2, padx=3, pady=10)
+ent_word_guess.bind("<Return>", enter_pressed_guess_word)        #bind ENTER to the entry which will run the same as button pressed
 
 # Run the application
 window.mainloop()
