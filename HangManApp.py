@@ -170,31 +170,14 @@ def guess_letter_btn():
             lives=lives-1
             lbl_lives_var["text"]=lives
             
-            if lives==0:        #check lives are 0
-                # datetime object containing current date and time
-                endgameTime = datetime.now()
-                # dd/mm/YY H:M:S
-                endgame_string_time = endgameTime.strftime("%H:%M:%S") 
-                # In same directory open file in append mode and add a new line of data
-                raw_data=open('hangman_raw_data.txt',"a")
-                raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
-                raw_data.close()
-                #display a winning pop up
-                messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
-            lbl_word["text"]=' '.join(hidden)
             
-    #check to see if the entire word has been found or unhidden     
-    if '_' not in hidden:
-        # datetime object containing current date and time
-        endgameTime = datetime.now()
-        # dd/mm/YY H:M:S
-        endgame_string_time = endgameTime.strftime("%H:%M:%S") 
-        # In same directory open file in append mode and add a new line of data
-        raw_data=open('hangman_raw_data.txt',"a")
-        raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
-        raw_data.close()
-        #display a winning pop up
-        messagebox.showinfo(title="Winner", message="YOU WON! The word was "+ ''.join(word)+"!")
+            lbl_word["text"]=' '.join(hidden)
+    
+    #display the correct letters guessed so far, avoid duplicates
+    if guess not in lettersGuessed and len(guess) == 1 and guess in uppercase_check:
+        lettersGuessed.append(guess)
+        lg_string=','.join(sorted(lettersGuessed))
+        lbl_let_guessed["text"]="Guesses: " + lg_string
     
     #draw out the current state of the game based on the lives at this point
     if lives==8: #Lose second life
@@ -215,20 +198,35 @@ def guess_letter_btn():
         lbl_game_state["image"]=_1lives
     elif lives==0: #Lose last life and the game is over
         lbl_game_state["image"]=_0lives
-
-    #display the correct letters guessed so far, avoid duplicates
-    if guess not in lettersGuessed and len(guess) == 1 and guess in uppercase_check:
-        lettersGuessed.append(guess)
-        lg_string=','.join(lettersGuessed)
-        lbl_let_guessed["text"]="Guesses: " + lg_string
-
+        # datetime object containing current date and time
+        endgameTime = datetime.now()
+        # dd/mm/YY H:M:S
+        endgame_string_time = endgameTime.strftime("%H:%M:%S") 
+        # In same directory open file in append mode and add a new line of data
+        raw_data=open('hangman_raw_data.txt',"a")
+        raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
+        raw_data.close()
+        #display a winning pop up
+        messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
+    
+    #check to see if the entire word has been found or unhidden     
+    if '_' not in hidden:
+        # datetime object containing current date and time
+        endgameTime = datetime.now()
+        # dd/mm/YY H:M:S
+        endgame_string_time = endgameTime.strftime("%H:%M:%S") 
+        # In same directory open file in append mode and add a new line of data
+        raw_data=open('hangman_raw_data.txt',"a")
+        raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
+        raw_data.close()
+        #display a winning pop up
+        messagebox.showinfo(title="Winner", message="YOU WON! The word was "+ ''.join(word)+"!")
 
 #function to allow enter to be pressed to submit letter guess
 def enter_pressed_guess_letter(event):
     #run the function that is the same as the button pressed
     guess_letter_btn()
 
-    
 #command for guessing the full word button when pressed
 def guess_word_btn():
     global guess_word, lives
@@ -266,18 +264,6 @@ def guess_word_btn():
         lives=lives-1
         lbl_lives_var["text"]=lives
     
-    if lives==0:        #check lives are 0
-        # datetime object containing current date and time
-        endgameTime = datetime.now()
-        # dd/mm/YY H:M:S
-        endgame_string_time = endgameTime.strftime("%H:%M:%S") 
-        # In same directory open file in append mode and add a new line of data
-        raw_data=open('hangman_raw_data.txt',"a")
-        raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
-        raw_data.close()
-        #display a winning pop up
-        messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
-    
     #draw out the current state of the game based on the lives at this point
     if lives==8: #Lose second life
         lbl_game_state["image"]=_8lives
@@ -297,14 +283,24 @@ def guess_word_btn():
         lbl_game_state["image"]=_1lives
     elif lives==0: #Lose last life and the game is over
         lbl_game_state["image"]=_0lives
-    
+        # check lives are 0
+        # datetime object containing current date and time
+        endgameTime = datetime.now()
+        # dd/mm/YY H:M:S
+        endgame_string_time = endgameTime.strftime("%H:%M:%S") 
+        # In same directory open file in append mode and add a new line of data
+        raw_data=open('hangman_raw_data.txt',"a")
+        raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
+        raw_data.close()
+        #display a winning pop up
+        messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
+       
     lbl_word["text"]=' '.join(hidden)
 
 #function to allow enter to be pressed to word guess
 def enter_pressed_guess_word(event):   
     #run the function that is the same as the button pressed
     guess_word_btn()
-
 
 
     
