@@ -4,43 +4,22 @@ import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
 
+#find a word from each difficulty
 def pick_easy_word():
-    import random
-    easyDict=['label','labor','macaw','fable','faced','ozone','cabin','cable','eager','jaded','pacer','paces','packs',
-              'rabid','eagle','typos','tyres','oasis','wales','walks', 'tiger', 'whale', 'zeus', 'flail', 'braces', 
-              'reeds', 'pages', 'nacho', 'mercy', 'joint', 'igloo', 'facia', 'bleed', 'nacho', 'rabid', 'sushi'
-              'royal', 'quill', 'necks', 'laced', 'lasso', 'juror', 'imput', 'eager', 'faced', 'cable', 'baron', 'bulge']
-    #print(len(easyDict))
-    return random.choice(easyDict)
+    easy_word_row=total_dict_dataframe.loc[total_dict_dataframe['Difficulty']=='EASY'].sample(n=1)
+    return easy_word_row.iloc[0]['Word']
     
 def pick_med_word():
-    import random
-    mediumDict=['ability','alchemy','baffled','boulder','cabaret','cougars','diaries','dusters','earache','gaboons',
-                'explore','gondola','habitat','heroine','icecaps','jigsaws','jamming','indulge','karaoke','knitted',
-                'lactose','ostrich','oatcake','packrat','stumped','sailers','pranked','tackled','waddled','tremble',
-                'zealots','website', 'engines', 'amnesia', 'anchovy', 'blanket','buffers','corrode','cottons', 'elitism']
-    #print(len(mediumDict))
-    return random.choice(mediumDict)
+    medium_word_row=total_dict_dataframe.loc[total_dict_dataframe['Difficulty']=='MEDIUM'].sample(n=1)
+    return medium_word_row.iloc[0]['Word']
     
 def pick_hard_word():
-    import random
-    hardDict=['abbreviate','analytical','blackberry','backboards','corruptive','dandelions','cyberbully','diagonally',
-              'earthworms','fabricates','enrichment','narcissism','semicircle','trajectile','tabernacle','hieroglyphs',
-              'abomination','leapfrogged','obfuscation','misanthropy','quarrelsome','petitioning','rehydration',
-              'seductively','taxidermist','undesirably','vaccination','ideological','caffeinated','zealousness',
-              'multivitamin','abbreviating','earsplitting', 'alleviative', 'anaesthetic', 'disillusive']
-    #print(len(hardDict))
-    return random.choice(hardDict)
+    hard_word_row=total_dict_dataframe.loc[total_dict_dataframe['Difficulty']=='HARD'].sample(n=1)
+    return hard_word_row.iloc[0]['Word']
 
 def pick_expert_word():
-    import random
-    expertDict=['fly', 'knights', 'rhythms', 'rhythmic', 'ivory', 'jiujitsu', 'blizzard', 'axoim', 'photosynthesis', 'larynx',
-                'buzzings', 'voodoo', 'megahertz', 'mystify', 'wyvern', 'mithril', 'onyx', 'whiskey', 'vortex', 'vertices',
-                'avenue', 'hydrogen', 'phlegm', 'wimp', 'wax', 'funny', 'pneumonia', 'icebox', 'kiosk', 'lymph', 'jazz',
-                'vertex', 'mischief', 'hex', 'ichor', 'surds', 'quark', 'odium', 'larva', 'joust', 'index', 'blouses',
-                'daemons', 'blasphemous', 'namelessnesses', 'ventriloquisms'] 
-    #print(len(expertDict))
-    return random.choice(expertDict)
+    expert_word_row=total_dict_dataframe.loc[total_dict_dataframe['Difficulty']=='EXPERT'].sample(n=1)
+    return expert_word_row.iloc[0]['Word']
 
 #set up the word that has been chosen from the lists
 def process_word(word):
@@ -58,11 +37,12 @@ def process_word(word):
 
 #button command that will reset the game state to full lives and no word as well as generating new words
 def reset_game_btn():
-    global lives, word,lettersGuessed, easy_word, med_word, hard_word, expert_word
+    global lives, word,lettersGuessed, easy_word, med_word, hard_word, expert_word,hint_counter
     lives=9
     word=''     #clear the word to allow for new ones to be generated.
     lettersGuessed=[]
     difficulty=''
+    hint_counter=0
     
     #create a time and datre variable that is created upon making a grid and can be saved to data file
     from datetime import datetime
@@ -91,7 +71,8 @@ def reset_game_btn():
     # reset letters guessed
     lettersGuessed=[]
     lbl_let_guessed["text"]="Guesses: "
-    lbl_lives_var["text"]=lives
+    lbl_lives["text"]="Lives Remaining: "+str(lives)
+
 
 #easy, medium and hard choice button commands, change the main_word variable to one selected from the distionaries.
 def easy_btn():
@@ -158,7 +139,7 @@ def guess_letter_btn():
 
     #checks for letters already guessed
     if guess in lettersGuessed:
-        messagebox.showinfo(title="Duplicate letter", message="You have already gussed,  " +  guess+ "  Try another letter." )
+        messagebox.showinfo(title="Duplicate letter", message="You have already guessed,  " +  guess+ "  Try another letter." )
     else:
         if guess in word:   #check the letter is in the word
             guess_location = [i for i, x in enumerate(word) if x == guess]  #checks for multiple occuracnes of the guess
@@ -168,16 +149,17 @@ def guess_letter_btn():
             lbl_word["text"]=' '.join(hidden)
         else:               #lose life if not in the word and then draw the relevent parts.
             lives=lives-1
-            lbl_lives_var["text"]=lives
-            
-            
+            lbl_lives["text"]="Lives remaining: "+str(lives)
             lbl_word["text"]=' '.join(hidden)
     
     #display the correct letters guessed so far, avoid duplicates
     if guess not in lettersGuessed and len(guess) == 1 and guess in uppercase_check:
         lettersGuessed.append(guess)
         lg_string=','.join(sorted(lettersGuessed))
-        lbl_let_guessed["text"]="Guesses: " + lg_string
+        if len(lettersGuessed) > 12:
+            lbl_let_guessed.config(text="Guesses: " + lg_string, font=("Lucida Sans Typewriter", 12, "bold"))
+        else:
+            lbl_let_guessed.config(text="Guesses: " + lg_string, font=("Lucida Sans Typewriter", 14, "bold"))
     
     #draw out the current state of the game based on the lives at this point
     if lives==8: #Lose second life
@@ -259,10 +241,11 @@ def guess_word_btn():
         raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
         raw_data.close()
         #display a winning pop up
+        lbl_word["text"]=' '.join(word)
         messagebox.showinfo(title="Winner", message="YOU WON! The word was "+ ''.join(word)+"!")
     else:
         lives=lives-1
-        lbl_lives_var["text"]=lives
+        lbl_lives["text"]="Lives remaining: "+str(lives)
     
     #draw out the current state of the game based on the lives at this point
     if lives==8: #Lose second life
@@ -294,21 +277,78 @@ def guess_word_btn():
         raw_data.close()
         #display a winning pop up
         messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
-       
-    lbl_word["text"]=' '.join(hidden)
+
 
 #function to allow enter to be pressed to word guess
 def enter_pressed_guess_word(event):   
     #run the function that is the same as the button pressed
     guess_word_btn()
 
-
+#get a hint for the word, remove a life and update display
+def get_hint():
+    global word,lives, hint_counter
+    if hint_counter==0:
+        lookup_word=''.join(word)
+        #print(lookup_word)
+        def find_hint(word):
+            word_location=total_dict_dataframe.loc[total_dict_dataframe['Word']==word]
+            #print(word_location)
+            hint=word_location.iloc[0]['Hint']
+            return hint
+        global hint
+        hint=find_hint(lookup_word)
+        messagebox.showinfo(title="Hint", message="It cost you one life to get the hint... "+str(hint))
+        lbl_difficulty["text"]="Difficulty: "+str(difficulty) +'     Hint: ' + str(hint)
+        lives=lives-1
+        lbl_lives["text"]="Lives remaining: "+str(lives)
+        #keep a variable to know hint has been pressed
+        hint_counter += 1
+        #draw out the current state of the game based on the lives at this point
+        if lives==8: #Lose second life
+            lbl_game_state["image"]=_8lives
+        elif lives==7: #Lose third life
+            lbl_game_state["image"]=_7lives
+        elif lives==6: #Lose fourth life
+            lbl_game_state["image"]=_6lives
+        elif lives==5: #Lose fifth life
+            lbl_game_state["image"]=_5lives
+        elif lives==4: #Lose sixth life
+            lbl_game_state["image"]=_4lives
+        elif lives==3: #Lose seventh life
+            lbl_game_state["image"]=_3lives
+        elif lives==2: #Lose eighth life
+            lbl_game_state["image"]=_2lives
+        elif lives==1:  #Lose ninth life
+            lbl_game_state["image"]=_1lives
+        elif lives==0: #Lose last life and the game is over
+            lbl_game_state["image"]=_0lives
+            # datetime object containing current date and time
+            endgameTime = datetime.now()
+            # dd/mm/YY H:M:S
+            endgame_string_time = endgameTime.strftime("%H:%M:%S") 
+            # In same directory open file in append mode and add a new line of data
+            raw_data=open('hangman_raw_data.txt',"a")
+            raw_data.write("\n"+dt_string_date+','+dt_string_time+','+endgame_string_time+','+str(''.join(word))+","+difficulty+","+str(lives)+","+str(''.join(lettersGuessed))) 
+            raw_data.close()
+            #display a winning pop up
+            messagebox.showinfo(title="GAME OVER", message="GAME OVER. The word was "+ ''.join(word)+"!")
+    else:
+        messagebox.showinfo(title="HINT", message="You have already pressed the hint button.")
     
+
+
+#import the dictionary dataframe that holds hints and infomation about play success
+import pandas as pd
+total_dict_dataframe=pd.read_csv('Full_Dictionary_HangMan.csv')
+
+
+
 #-------------GLOBAL VARIABLES TO INITIATE APP ------------
 word=''
 hidden=''
 lives=9  #initial variable to track the lives of the user
 difficulty=''
+hint_counter=0
 #EASY WORD
 easy_word=pick_easy_word().upper()
 #MEDIUM WORD
@@ -353,11 +393,7 @@ _0lives = tk.PhotoImage(file='0lives.png')
 
 #LABEL - Choose the words difficulty
 lbl_title=tk.Label(master=window, 
-                text="H_NGM_N   G_ME",
-                font=("Minion Pro Med", 34,  "bold italic"), 
-                foreground="#FFA500",  
-                background="#4169E1"
-)
+                text="H_NGM_N   G_ME", font=("Minion Pro Med", 34,  "bold italic"), fg="#FFA500", bg="#4169E1")
 lbl_title.grid(row=0, column=0, sticky="ew")
 
 #FRAME TO HOLD WORD CHOICE BUTTONS
@@ -393,15 +429,10 @@ btn_expert.grid(row=0, column=4, pady=8)
 #displays the difficulty of word chosen
 lbl_difficulty=tk.Label(master=frm_choose_button,text="Difficulty: ",font=["Arial", 11, "bold"] ,
                         fg='black',  bg=frm_pic_colors[1])
-lbl_difficulty.grid(row=1, column=0,sticky='ew')
+lbl_difficulty.grid(row=1, column=0, columnspan=4,sticky='w')
 
 #label- displays the current state of the word 
-lbl_word = tk.Label(master=window,
-    text="Click difficulty to start!",
-    font=("Lucida Sans Typewriter", 20, "bold"), 
-    foreground="black",  
-    background="#F08080"
-)
+lbl_word = tk.Label(master=window, text="Click difficulty to start!",font=("Lucida Sans Typewriter", 20, "bold"), fg="black", bg="#F08080")
 #displays the current word stats of _ _ _ _ or the letters replacing them.
 lbl_word.grid(row=3, column=0, sticky='ew')
 
@@ -446,10 +477,13 @@ btb_letter_confirm.grid(row=1, column=0, padx=3, pady=10)
 ent_letter_guess.bind("<Return>", enter_pressed_guess_letter)        #bind ENTER to the entry that will run the same as button pressed
 
 #bottom middle part of screen to keep track of lives remaining
-lbl_lives=tk.Label(master=frm_buttons, text="Lives Remaining:", font=("Miriam", 15), bg=frm_pic_colors[1])
-lbl_lives_var=tk.Label(master=frm_buttons, text=lives, font=("Miriam", 18, "bold"), bg=frm_pic_colors[1])
+lbl_lives=tk.Label(master=frm_buttons, text="Lives Remaining: "+str(lives), font=("Miriam", 14), bg=frm_pic_colors[1])
 lbl_lives.grid(row=0, column=1, pady=5)
-lbl_lives_var.grid(row=1, column=1, pady=5)
+
+#a button that will allow the user to get a hint at the cost of one life
+btn_hint=tk.Button(master=frm_buttons, text="Get Hint!",font=("Miriam", 14, "bold"),fg=btn_colors[0], bg=btn_colors[1],
+                   relief=tk.RIDGE, borderwidth=3, command=get_hint) 
+btn_hint.grid(row=1, column=1, pady=5)
 
 #right hand side entry and button to attempt to guess the entire word
 ent_word_guess=tk.Entry(master=frm_buttons)
